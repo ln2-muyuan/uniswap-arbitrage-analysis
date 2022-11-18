@@ -1,4 +1,5 @@
 import json
+from eth_abi import decode_abi
 from web3 import Web3
 from web3._utils.request import make_post_request
 
@@ -32,21 +33,45 @@ class BatchHTTPProvider(Web3.HTTPProvider):
         request_data = text.encode('utf-8')
         self.logger.debug("Making request HTTP. URI: %s, Request: %s", self.endpoint_uri, request_data)
         raw_response = make_post_request(self.endpoint_uri, request_data, **self.get_request_kwargs())
-        response = self.decodce_rpc_response(raw_response)
+        response = self.decode_rpc_response(raw_response)
         self.logger.debug("Got response HTTP. URI: %s, Response: %s", self.endpoint_uri, response)
         return response
 
 
-batch_provider = BatchHTTPProvider(infura_url)
-# print(batch_provider.make_batch_request(next(generate_get_reserves_json_rpc(pairs))))
+# batch_provider = BatchHTTPProvider(infura_url)
+# print(batch_provider.make_batch_request(json.dumps(list(generate_get_reserves_json_rpc(pairs)))))
+
+
+def get_reserves(pairs):
+    batch_provider = BatchHTTPProvider(infura_url)
+    r = list(batch_provider.make_batch_request(json.dumps(list(generate_get_reserves_json_rpc(pairs)))))
+    for i in range(len(pairs)):
+        result = decode_abi(['uint112', 'uint112', 'uint32'], bytes.fromhex(r[i]['result'][2:]))
+        pairs[i]['reserve0'] = result[0]
+        pairs[i]['reserve1'] = result[1]
+        # reserves0 = r[0]['result'][2:66]
+        # reserves1 = r[0]['result'][66:130]
+    return pairs
+
+
+
 
 
 def main():
+    updated_pairs = get_reserves(pairs)
+    for pair in updated_pairs:
+        print(pair)
+
+
     # for i in generate_get_reserves_json_rpc(pairs):
     #     print(i)
 
     # print(list(generate_get_reserves_json_rpc(pairs)))
-    print(next(generate_get_reserves_json_rpc(pairs)))
+
+    # a = generate_get_reserves_json_rpc(pairs)
+    # print(next(a))
+    # print(next(a))
+
 
 
 if __name__ == "__main__":
