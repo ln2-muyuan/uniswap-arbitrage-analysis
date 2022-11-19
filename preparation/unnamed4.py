@@ -13,3 +13,5 @@ def bar(param1, **param2):
 
 bar(1, a=2, b=3)
 
+tuple = (100, 200, 300, 400, 500)
+print(tuple[0])

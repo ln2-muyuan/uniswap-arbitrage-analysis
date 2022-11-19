@@ -3,18 +3,19 @@ import time
 
 
 class TestThread(threading.Thread):
-    def __init__(self, name=None):
+    def __init__(self, length, name=None):
         threading.Thread.__init__(self, name=name)
+        self.args = length
 
     def run(self):
-        for i in range(5):
-            print(threading.current_thread().name + ' test ', i)
-            time.sleep(1)
+        loop(self.args)
 
 
-thread = TestThread(name='TestThread')
+def loop(length):
+    for i in range(length):
+        print(threading.current_thread().name + ' test ', i)
+        time.sleep(1)
+
+
+thread = TestThread(5, name='TestThread')
 thread.start()
-
-for i in range(5):
-    print(threading.current_thread().name + ' main ', i)
-    time.sleep(1)
