@@ -1,11 +1,15 @@
 import json
+import time
+
 from eth_abi import decode_abi
 from web3 import Web3
 from web3._utils.request import make_post_request
 
+from thread import *
+
 infura_url = "https://mainnet.infura.io/v3/4b0c1a572d1b417990c995ae82480859"
 web3 = Web3(Web3.HTTPProvider(infura_url))
-pairs = json.load(open('../src/files/pairs_test.json'))
+pairs = json.load(open('../src/files/pairs_test_2.json'))
 uniswap_v2_pair_abi = json.load(open('../src/abi/UniswapV2Pair'))
 
 
@@ -52,13 +56,28 @@ def get_reserves(pairs):
 
 
 def main():
+    start_time = time.time()
     if len(pairs) < 200:
         updated_pairs = get_reserves(pairs)
-        for pair in updated_pairs:
-            print(pair)
     else:
-        print()
-
+        threads = []
+        updated_pairs = []
+        length = 200
+        finished_count = 0
+        while finished_count < len(pairs):
+            if finished_count + length > len(pairs):
+                length = len(pairs) - finished_count
+            threads.append(MyThread(get_reserves, (pairs[finished_count:finished_count + length],)))
+            finished_count += length
+        for t in threads:
+            t.start()
+        for t in threads:
+            t.join()
+            updated_pairs += t.get_result()
+    end_time = time.time()
+    print("Updating cost time: " + str(end_time - start_time) + "s")
+    # for pair in updated_pairs:
+    #     print(pair)
 
 
 if __name__ == "__main__":
