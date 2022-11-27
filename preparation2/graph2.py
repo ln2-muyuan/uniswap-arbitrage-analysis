@@ -30,3 +30,4 @@ class Graph:
                 if not visited[i]:
                     stack.append(i)
                     visited[i] = True
+
