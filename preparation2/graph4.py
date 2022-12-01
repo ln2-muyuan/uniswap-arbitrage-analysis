@@ -1,6 +1,7 @@
 import json
+import time
 
-pairs = json.load(open('../src/files/pairs_test_2.json'))
+pairs = json.load(open('../src/files/pairs_full.json'))
 
 tokenIn = {"address": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2", "symbol": "WETH", "decimal": 18}
 tokenOut = {"address": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48", "symbol": "USDC", "decimal": 6}
@@ -21,9 +22,8 @@ def findArb(all_pairs, length, tokenIn, tokenOut, path):
             temp_out = pair['token1']
         else:
             temp_out = pair['token0']
-        new_path.append(tokenIn)
-        new_path.append(pair['index'])
-        new_path.append(temp_out)
+        pool = [pair['index'], tokenIn, temp_out]
+        new_path.append(pool)
         global allPath
         if temp_out['address'] == tokenOut['address']:
             # only the complete path can be added to allPath
@@ -33,8 +33,17 @@ def findArb(all_pairs, length, tokenIn, tokenOut, path):
             pairs_excluding_this_pair = all_pairs[:i] + all_pairs[i + 1:]
             findArb(pairs_excluding_this_pair, length - 1, temp_out, tokenOut, new_path)
             # remain the new_path to the original state
-            new_path = new_path[:-3]
+            new_path = new_path[:-1]
 
 
-findArb(pairs, 5, tokenIn, tokenIn, firstPath)
-print("\n".join(map(str, allPath)))
+
+def main():
+    start_time = time.time()
+    findArb(pairs, 5, tokenIn, tokenIn, firstPath)
+    # print("\n".join(map(str, allPath)))
+    end_time = time.time()
+    print("Finding cost time: " + str(end_time - start_time) + "s")
+    print("Total path number: " + str(len(allPath)))
+
+
+main()
