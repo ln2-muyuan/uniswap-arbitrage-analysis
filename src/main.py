@@ -42,5 +42,5 @@ def main():
     print("Optimal arbitrage path: " + "\n".join(map(str, path)))
 
 
-if __name__ == "__main__":
-    main()
+
+main()
