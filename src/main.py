@@ -1,32 +1,46 @@
 import time
 from thread import *
-from update import *
+from rpc import *
+from dfs import *
 
 
-def main():
-    start_time = time.time()
-    if len(pairs) < 200:
-        updated_pairs = get_reserves(pairs)
+def updated_pairs(pairs_to_be_updated):
+    if len(pairs_to_be_updated) < 200:
+        get_reserves(pairs_to_be_updated)
     else:
         threads = []
-        updated_pairs = []
+        all_updated_pairs = []
         length = 200
         finished_count = 0
-        while finished_count < len(pairs):
-            if finished_count + length > len(pairs):
-                length = len(pairs) - finished_count
-            threads.append(MyThread(get_reserves, (pairs[finished_count:finished_count + length],)))
+        while finished_count < len(pairs_to_be_updated):
+            if finished_count + length > len(pairs_to_be_updated):
+                length = len(pairs_to_be_updated) - finished_count
+            threads.append(MyThread(get_reserves, (pairs_to_be_updated[finished_count:finished_count + length],)))
             finished_count += length
         for t in threads:
             t.start()
         for t in threads:
             t.join()
-            updated_pairs += t.get_result()
+            all_updated_pairs += t.get_result()
+
+
+def main():
+    start_time = time.time()
+    pairs = json.load(open('files/pairs_test3.json'))
+    # updated_pairs(pairs)
     end_time = time.time()
     print("Updating cost time: " + str(end_time - start_time) + "s")
-    # for pair in updated_pairs:
-    #     print(pair)
+    # enter the target token
+    token_in = {"address": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2", "symbol": "WETH", "decimal": 18}
+    start_time = time.time()
+    all_path = findArb(pairs, 5, token_in, token_in)
+    end_time = time.time()
+    print("Finding cost time: " + str(end_time - start_time) + "s")
+    print("Total path number: " + str(len(all_path)))
+    amount, path = get_optimal_amount(all_path)
+    print("Optimal input amount: " + str(amount))
+    print("Optimal arbitrage path: " + "\n".join(map(str, path)))
 
 
-if __name__ == "__main__":
-    main()
+
+main()
