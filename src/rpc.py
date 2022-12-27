@@ -4,8 +4,9 @@ from eth_abi import decode_abi
 from web3 import Web3
 from web3._utils.request import make_post_request
 
-_infura_url = "https://mainnet.infura.io/v3/4b0c1a572d1b417990c995ae82480859"
-_web3 = Web3(Web3.HTTPProvider(_infura_url))
+# change infura_url here
+infura_url = None
+_web3 = Web3(Web3.HTTPProvider(infura_url))
 _uniswap_v2_pair_abi = json.load(open('../src/abi/UniswapV2Pair'))
 
 
@@ -28,7 +29,7 @@ def _generate_get_reserves_json_rpc(pairs):
 
 
 def get_reserves(pairs):
-    batch_provider = BatchHTTPProvider(_infura_url)
+    batch_provider = BatchHTTPProvider(infura_url)
     r = list(batch_provider.make_batch_request(json.dumps(list(_generate_get_reserves_json_rpc(pairs)))))
 
     for i in range(len(pairs)):
