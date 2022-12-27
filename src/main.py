@@ -21,19 +21,21 @@ def updated_pairs(pairs_to_be_updated):
             t.start()
         for t in threads:
             t.join()
-            all_updated_pairs += t.get_result()
+            if t.get_result() is not None:
+                all_updated_pairs.extend(t.get_result())
 
 
 def main():
     start_time = time.time()
-    pairs = json.load(open('files/pairs_test3.json'))
-    # updated_pairs(pairs)
+    # change the dataset here
+    pairs = json.load(open('files/pairs_full.json'))
+    updated_pairs(pairs)
     end_time = time.time()
     print("Updating cost time: " + str(end_time - start_time) + "s")
     # enter the target token
     token_in = {"address": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2", "symbol": "WETH", "decimal": 18}
     start_time = time.time()
-    all_path = findArb(pairs, 5, token_in, token_in)
+    all_path = findArb(pairs, 6, token_in, token_in)
     end_time = time.time()
     print("Finding cost time: " + str(end_time - start_time) + "s")
     print("Total path number: " + str(len(all_path)))
@@ -42,5 +44,5 @@ def main():
     print("Optimal arbitrage path: " + "\n".join(map(str, path)))
 
 
-
-main()
+if __name__ == '__main__':
+    main()
