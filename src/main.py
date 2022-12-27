@@ -26,8 +26,9 @@ def updated_pairs(pairs_to_be_updated):
 
 def main():
     start_time = time.time()
+    # change the dataset here
     pairs = json.load(open('files/pairs_test3.json'))
-    # updated_pairs(pairs)
+    updated_pairs(pairs)
     end_time = time.time()
     print("Updating cost time: " + str(end_time - start_time) + "s")
     # enter the target token
